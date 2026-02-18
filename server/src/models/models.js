@@ -1,4 +1,4 @@
-const sequelize = require("./index");
+const sequelize = require("../db");
 const { DataTypes } = require("sequelize");
 
 const User = sequelize.define(
@@ -13,17 +13,20 @@ const User = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: false,
       trim: true,
+      field: "first_name",
     },
     lastName: {
       type: DataTypes.STRING(100),
       allowNull: false,
       trim: true,
+      field: "last_name",
     },
     displayName: {
       type: DataTypes.STRING(80),
       allowNull: false,
       unique: true,
       trim: true,
+      field: "display_name",
     },
     email: {
       type: DataTypes.STRING(120),
@@ -32,16 +35,81 @@ const User = sequelize.define(
       validate: {
         isEmail: true,
       },
+      field: "email", // уже lowercase, но для единообразия можно указать
     },
     password: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      field: "password",
     },
   },
   {
     tableName: "users",
     underscored: true,
     timestamps: true,
+    indexes: [
+      { unique: true, fields: ["email"] },
+      { unique: true, fields: ["display_name"] }, // ← теперь snake_case
+    ],
+  }
+);
+
+const Conversation = sequelize.define(
+  "conversation",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    type: {
+      type: DataTypes.ENUM("private", "group"),
+      allowNull: false,
+      defaultValue: "private",
+      field: "type",
+    },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: "name",
+    },
+  },
+  {
+    tableName: "conversations",
+    underscored: true,
+    timestamps: true,
+    indexes: [{ fields: ["type"] }],
+  }
+);
+
+const ConversationParticipant = sequelize.define(
+  "conversation_participant",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "user_id",
+    },
+    conversationId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "conversation_id",
+    },
+  },
+  {
+    tableName: "conversation_participants",
+    underscored: true,
+    timestamps: true,
+    indexes: [
+      { unique: true, fields: ["user_id", "conversation_id"] },
+      { fields: ["user_id"] },
+      { fields: ["conversation_id"] },
+    ],
   }
 );
 
@@ -56,21 +124,23 @@ const Message = sequelize.define(
     content: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: "content",
     },
     senderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       field: "sender_id",
     },
-    receiverId: {
+    conversationId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "receiver_id",
+      field: "conversation_id",
     },
     isRead: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false,
+      field: "is_read",
     },
   },
   {
@@ -78,19 +148,27 @@ const Message = sequelize.define(
     underscored: true,
     timestamps: true,
     paranoid: true,
+    indexes: [
+      { fields: ["conversation_id", "created_at"] }, // ← snake_case + created_at
+      { fields: ["sender_id"] },
+    ],
   }
 );
 
 function defineAssociations() {
-  User.hasMany(Message, {
-    as: "sentMessages",
-    foreignKey: "senderId",
+  User.belongsToMany(Conversation, {
+    through: ConversationParticipant,
+    as: "conversations",
+    foreignKey: "userId",           // в JS camelCase
+    otherKey: "conversationId",
     onDelete: "CASCADE",
   });
 
-  User.hasMany(Message, {
-    as: "receivedMessages",
-    foreignKey: "receiverId",
+  Conversation.belongsToMany(User, {
+    through: ConversationParticipant,
+    as: "participants",
+    foreignKey: "conversationId",
+    otherKey: "userId",
     onDelete: "CASCADE",
   });
 
@@ -100,9 +178,21 @@ function defineAssociations() {
     onDelete: "CASCADE",
   });
 
-  Message.belongsTo(User, {
-    as: "receiver",
-    foreignKey: "receiverId",
+  User.hasMany(Message, {
+    as: "sentMessages",
+    foreignKey: "senderId",
+    onDelete: "CASCADE",
+  });
+
+  Message.belongsTo(Conversation, {
+    as: "conversation",
+    foreignKey: "conversationId",
+    onDelete: "CASCADE",
+  });
+
+  Conversation.hasMany(Message, {
+    as: "messages",
+    foreignKey: "conversationId",
     onDelete: "CASCADE",
   });
 }
@@ -111,5 +201,7 @@ defineAssociations();
 
 module.exports = {
   User,
+  Conversation,
+  ConversationParticipant,
   Message,
 };

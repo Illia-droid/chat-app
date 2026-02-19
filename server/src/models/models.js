@@ -35,7 +35,7 @@ const User = sequelize.define(
       validate: {
         isEmail: true,
       },
-      field: "email", // уже lowercase, но для единообразия можно указать
+      field: "email", 
     },
     password: {
       type: DataTypes.STRING(255),

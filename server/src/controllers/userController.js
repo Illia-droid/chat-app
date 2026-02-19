@@ -1,15 +1,19 @@
+const { User } = require("../models/models");
 const ApiError = require("../errors/ApiError");
 
-class UserController {
-  async registration(req, res, next) {}
-  async login(req, res, next) {}
-  async check(req, res, next) {
-    const { id } = req.query;
-    if (!id) {
-      return next(ApiError.badRequest("Не задан ID"));
+class userController {
+  async getUser(req, res, next) {
+    try {
+      const { email } = req.user;
+      const userData = await User.findOne({ where: { email } });
+      if (!userData) {
+        return next(ApiError.badRequest("There is no user data yet"));
+      }
+      return res.json(userData);
+    } catch (error) {
+      next(error);
     }
-    res.json(id);
   }
 }
 
-module.exports = new UserController();
+module.exports = new userController();

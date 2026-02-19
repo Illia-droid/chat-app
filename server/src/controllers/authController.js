@@ -27,7 +27,16 @@ class authController {
         process.env.ACCESS_JWT_SECRET,
         { expiresIn: "24h" },
       );
-      return res.json(jwtoken);
+      res.json({
+        jwtoken,
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          displayName: user.displayName,
+          email: user.email,
+        },
+      });
     } catch (error) {
       next(error);
     }
@@ -51,7 +60,16 @@ class authController {
         process.env.ACCESS_JWT_SECRET,
         { expiresIn: "24h" },
       );
-      return res.json(jwtoken);
+      res.json({
+        jwtoken,
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          displayName: user.displayName,
+          email: user.email,
+        },
+      });
     } catch (error) {
       next(error);
     }

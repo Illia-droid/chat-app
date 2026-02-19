@@ -30,7 +30,7 @@ const useAuthStore = create(
         }),
     }),
     {
-      name: "auth-storage", // Ключ в localStorage
+      name: "auth-storage",
     },
   ),
 );

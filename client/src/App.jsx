@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import Chat from './pages/Chat'
 import AuthenticationPage from './pages/AuthenticationPage'
 import ProtectedRoute from './components/HOC/ProtectedRoute'
+import UserPage from './pages/UserPage'
 
 function App () {
   return (
@@ -17,6 +18,7 @@ function App () {
             </ProtectedRoute>
           }
         />
+        <Route path='/user/:id' element={<UserPage />} />
         <Route path='/auth' element={<AuthenticationPage />} />
       </Routes>
     </BrowserRouter>

@@ -6,7 +6,7 @@ import api from "../utils/api"; // твой axios-инстанс
 export const useConversations = () => {
   return useQuery({
     queryKey: ["conversations"],
-    queryFn: () => api.get("/conversations").then((res) => res.data),
+    queryFn: () => api.get("/chat/conversations").then((res) => res.data),
   });
 };
 
@@ -15,7 +15,7 @@ export const useMessages = (chatId) => {
   return useQuery({
     queryKey: ["messages", chatId],
     queryFn: () =>
-      api.get(`/conversations/${chatId}/messages`).then((res) => res.data),
+      api.get(`/chat/conversations/${chatId}/messages`).then((res) => res.data),
     enabled: !!chatId, // не запрашиваем, если chatId нет
   });
 };
@@ -25,7 +25,7 @@ export const useSendMessage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload) => api.post("/messages", payload),
+    mutationFn: (payload) => api.post("/chat/messages", payload),
     onMutate: async (newMsg) => {
       // Отменяем текущие запросы, чтобы не было конфликтов
       await queryClient.cancelQueries({

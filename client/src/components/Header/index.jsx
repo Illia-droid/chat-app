@@ -42,7 +42,13 @@ function Header () {
         </Link>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px'
+        }}
+      >
         {isLoggedIn ? (
           <>
             {/* Показываем displayName в углу */}
@@ -54,7 +60,9 @@ function Header () {
                 fontSize: '0.95rem'
               }}
             >
-              👤 {user?.displayName || 'Пользователь'}
+              <Link to={`/user/${user?.id}`}>
+                👤 {user?.displayName || 'Пользователь'}
+              </Link>
             </div>
 
             <button

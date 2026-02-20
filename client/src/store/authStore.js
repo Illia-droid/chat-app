@@ -7,14 +7,14 @@ const useAuthStore = create(
       user: null,
       token: null,
       isLoggedIn: false,
-   
+
       login: (data) =>
         set({
           user: data.user,
           token: data.jwtoken,
           isLoggedIn: true,
         }),
- 
+
       register: (data) =>
         set({
           user: data.user,
@@ -28,6 +28,7 @@ const useAuthStore = create(
           token: null,
           isLoggedIn: false,
         }),
+      setUser: (user) => set({ user }),
     }),
     {
       name: "auth-storage",

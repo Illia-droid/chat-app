@@ -1,95 +1,37 @@
-// src/components/Navbar.jsx
 import { Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
+import styles from './Header.module.scss'
 
-function Header () {
+function Header() {
   const { user, isLoggedIn, logout } = useAuthStore()
-  console.log(user)
 
   return (
-    <nav
-      style={{
-        padding: '12px 24px',
-        background: '#f8f9fa',
-        borderBottom: '1px solid #dee2e6',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}
-    >
-      <div>
-        <Link
-          to='/'
-          style={{
-            fontWeight: 'bold',
-            fontSize: '1.4rem',
-            textDecoration: 'none',
-            color: '#333'
-          }}
-        >
-          Home
-        </Link>
-        <Link
-          to='/chat'
-          style={{
-            fontWeight: 'bold',
-            fontSize: '1.4rem',
-            textDecoration: 'none',
-            color: '#333'
-          }}
-        >
-          Chat
-        </Link>
+    <nav className={styles.nav}>
+      <div className={styles.left}>
+        <Link to='/' className={styles.logo}>Home</Link>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px'
-        }}
-      >
+      <div className={styles.right}>
         {isLoggedIn ? (
-          <>
-            {/* Показываем displayName в углу */}
-            <div
-              style={{
-                background: '#e9ecef',
-                padding: '6px 12px',
-                borderRadius: '20px',
-                fontSize: '0.95rem'
-              }}
-            >
-              <Link to={`/user/${user?.id}`}>
-                👤 {user?.displayName || 'Пользователь'}
-              </Link>
-            </div>
+          <div className={styles.userMenu}>
+            <Link to={`/user/${user?.id}`} className={styles.userTrigger}>
+              <div className={styles.avatar}>
+                {user?.displayName?.charAt(0).toUpperCase()}
+              </div>
+              <span>{user?.displayName || 'Пользователь'}</span>
+            </Link>
 
-            <button
-              onClick={logout}
-              style={{
-                padding: '6px 12px',
-                background: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer'
-              }}
-            >
-              Выйти
-            </button>
-          </>
+            <div className={styles.dropdown}>
+              <Link to='/chat' className={styles.item}>💬 Чаты</Link>
+              <Link to={`/user/${user?.id}`} className={styles.item}>👤 Профиль</Link>
+
+              <button onClick={logout} className={styles.logout}>
+                🚪 Выйти
+              </button>
+            </div>
+          </div>
         ) : (
-          <Link
-            to='/auth'
-            style={{
-              padding: '6px 12px',
-              background: '#007bff',
-              color: 'white',
-              borderRadius: '6px',
-              textDecoration: 'none'
-            }}
-          >
+          <Link to='/auth' className={styles.authBtn}>
             Войти / Зарегистрироваться
           </Link>
         )}
